@@ -7,3 +7,4 @@ export { TestimonialsSection } from "./TestimonialsSection";
 export { CTASection } from "./CTASection";
 export { TrustBanner } from "./TrustBanner";
 export { NewsletterSection } from "./NewsletterSection";
+export { FAQSection } from "./FAQSection";
