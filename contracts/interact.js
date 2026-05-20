@@ -118,6 +118,7 @@ function sendAndWait(data, label, value = 0n) {
 }
 
 // ── Products ─────────────────────────────────────────────────────────────────
+// Products also defined in lib/constants.ts
 const PRODUCTS = [
   { name: "Whole Milk 1L",         qty: 100, price: "1000000000000000" },
   { name: "Skimmed Milk 1L",       qty: 80,  price: "900000000000000"  },
