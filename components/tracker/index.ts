@@ -1,6 +1,7 @@
 export { BatchCard } from "./BatchCard";
 export { BatchSearch } from "./BatchSearch";
 export { BatchShareButton } from "./BatchShareButton";
+export { BatchDetailModal } from "./BatchDetailModal";
 export { StageTimeline } from "./StageTimeline";
 export { StageBadge } from "./StageBadge";
 export { CustodyRow } from "./CustodyRow";
