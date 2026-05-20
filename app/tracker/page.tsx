@@ -3,7 +3,7 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Leaf, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { BatchCard, BatchSearch, EmptyState, ErrorState, RecentBatches } from "@/components/tracker";
+import { BatchCard, BatchSearch, EmptyState, ErrorState, RecentBatches, ContractInfo } from "@/components/tracker";
 import { useBatch, useBatchCount } from "@/hooks";
 
 export default function TrackerPage() {
@@ -74,13 +74,7 @@ export default function TrackerPage() {
           </motion.div>
         </div>
 
-        <div className="mt-10 text-center text-xs text-gray-400">
-          Contract:{" "}
-          <a href="https://celoscan.io/address/0x337b04f40036bfb48f22ae58fcf92d2f1f5cc4a8"
-            target="_blank" rel="noopener noreferrer" className="text-green-700 font-mono hover:underline">
-            0x337b…c4a8
-          </a>{" "}on Celo Mainnet
-        </div>
+        <ContractInfo />
       </div>
     </main>
   );
