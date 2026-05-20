@@ -1,3 +1,5 @@
+![Celo](https://img.shields.io/badge/Celo-Mainnet-brightgreen) ![Next.js](https://img.shields.io/badge/Next.js-16-black)
+
 # CowCare — Milk Supply Chain DApp
 
 A Next.js 16 + Celo blockchain application for tracking milk batches from farm to consumer.
