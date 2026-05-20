@@ -5,3 +5,4 @@ export { HowItWorksSection } from "./HowItWorksSection";
 export { BlockchainCTA } from "./BlockchainCTA";
 export { TestimonialsSection } from "./TestimonialsSection";
 export { CTASection } from "./CTASection";
+export { TrustBanner } from "./TrustBanner";
