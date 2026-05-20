@@ -20,3 +20,7 @@ export const NAV_LINKS = [
   { label: "Contact", href: "/contact" },
   { label: "Tracker", href: "/tracker" },
 ] as const;
+
+export const CELO_EXPLORER = "https://celoscan.io";
+export const CELO_EXPLORER_TX = (hash: string) => `${CELO_EXPLORER}/tx/${hash}`;
+export const CELO_EXPLORER_ADDR = (addr: string) => `${CELO_EXPLORER}/address/${addr}`;
