@@ -33,3 +33,11 @@ export const SOCIAL_LINKS = {
   github:   "https://github.com/jajafwangshak86-ops/cow-milk-site",
   linkedin: "https://linkedin.com/company/cowcare",
 } as const;
+
+export const STAGE_COLORS: Record<string, string> = {
+  Farmed:      "#16a34a",
+  Processed:   "#2563eb",
+  Distributed: "#d97706",
+  OnSale:      "#9333ea",
+  Sold:        "#6b7280",
+};
