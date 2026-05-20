@@ -27,3 +27,9 @@ export const CELO_EXPLORER_ADDR = (addr: string) => `${CELO_EXPLORER}/address/${
 
 export const APP_VERSION = "1.0.0";
 export const APP_NAME = "CowCare";
+
+export const SOCIAL_LINKS = {
+  twitter:  "https://twitter.com/cowcareapp",
+  github:   "https://github.com/jajafwangshak86-ops/cow-milk-site",
+  linkedin: "https://linkedin.com/company/cowcare",
+} as const;
