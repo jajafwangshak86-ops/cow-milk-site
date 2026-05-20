@@ -1,12 +1,21 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Leaf, ChevronRight, Menu, X } from "lucide-react";
 
-const NAV_LINKS = ["Home", "Products", "About Us", "Blog"];
+const NAV_LINKS = [
+  { label: "Home",    href: "/" },
+  { label: "About",   href: "/about" },
+  { label: "Blog",    href: "/blog" },
+  { label: "Contact", href: "/contact" },
+  { label: "Tracker", href: "/tracker" },
+];
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-6 md:px-16 py-4 flex justify-between items-center">
@@ -14,10 +23,12 @@ export function Navbar() {
           <Leaf className="w-5 h-5" /> COWCARE
         </Link>
         <nav className="hidden md:flex gap-8 text-sm font-medium text-gray-600">
-          {NAV_LINKS.map((l) => (
-            <a key={l} href="#" className="hover:text-green-800 transition-colors">{l}</a>
+          {NAV_LINKS.map(({ label, href }) => (
+            <Link key={href} href={href}
+              className={`hover:text-green-800 transition-colors ${pathname === href ? "text-green-800 font-semibold" : ""}`}>
+              {label}
+            </Link>
           ))}
-          <Link href="/tracker" className="hover:text-green-800 transition-colors">Tracker</Link>
         </nav>
         <div className="hidden md:flex items-center gap-3">
           <a href="#" className="text-sm text-gray-600 hover:text-green-800 transition-colors">Log in</a>
@@ -31,8 +42,12 @@ export function Navbar() {
       </div>
       {open && (
         <div className="md:hidden bg-white border-t px-6 py-4 flex flex-col gap-4 text-sm font-medium text-gray-700">
-          {NAV_LINKS.map((l) => <a key={l} href="#" className="hover:text-green-800">{l}</a>)}
-          <Link href="/tracker" className="hover:text-green-800">Tracker</Link>
+          {NAV_LINKS.map(({ label, href }) => (
+            <Link key={href} href={href} onClick={() => setOpen(false)}
+              className={`hover:text-green-800 ${pathname === href ? "text-green-800 font-semibold" : ""}`}>
+              {label}
+            </Link>
+          ))}
           <button className="bg-green-800 text-white px-4 py-2 rounded-md w-full">Sign In</button>
         </div>
       )}
