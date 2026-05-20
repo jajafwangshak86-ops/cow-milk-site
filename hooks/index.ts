@@ -6,3 +6,4 @@ export { useSearchHistory } from "./useSearchHistory";
 export { useDebounce } from "./useDebounce";
 export { useMediaQuery } from "./useMediaQuery";
 export { useToggle } from "./useToggle";
+export { useWindowSize } from "./useWindowSize";
