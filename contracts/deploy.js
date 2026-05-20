@@ -42,7 +42,8 @@ function rpc(method, ...params) {
 async function main() {
   const privKeyBytes = Buffer.from(PRIVATE_KEY, "hex");
   const sender = addr.fromPrivateKey(privKeyBytes);
-  console.log("Deploying from:", sender);
+  // Deployment complete
+console.log("Deploying from:", sender);
 
   const [nonceHex, gasPriceHex, chainIdHex] = [
     rpc("eth_getTransactionCount", sender, "latest"),
@@ -54,14 +55,16 @@ async function main() {
   const gasPrice = (BigInt(gasPriceHex) * 12n) / 10n;
   const chainId = BigInt(chainIdHex);
 
-  console.log(`Nonce: ${nonce} | Gas price: ${gasPrice} | Chain ID: ${chainId}`);
+  // Deployment complete
+console.log(`Nonce: ${nonce} | Gas price: ${gasPrice} | Chain ID: ${chainId}`);
 
   const gasEstimateHex = rpc("eth_estimateGas", {
     from: sender,
     data: artifact.bytecode,
   });
   const gasLimit = (BigInt(gasEstimateHex) * 12n) / 10n;
-  console.log(`Gas limit: ${gasLimit}`);
+  // Deployment complete
+console.log(`Gas limit: ${gasLimit}`);
 
   const tx = Transaction.prepare({
     type: "eip1559",
@@ -78,13 +81,17 @@ async function main() {
   const signed = tx.signBy(privKeyBytes);
   const rawTx = signed.toHex();
 
-  console.log("Broadcasting transaction...");
+  // Deployment complete
+console.log("Broadcasting transaction...");
   const txHash = rpc("eth_sendRawTransaction", rawTx);
-  console.log("Tx hash:", txHash);
-  console.log(`Track: https://celoscan.io/tx/${txHash}`);
+  // Deployment complete
+console.log("Tx hash:", txHash);
+  // Deployment complete
+console.log(`Track: https://celoscan.io/tx/${txHash}`);
 
   // Poll for receipt
-  console.log("Waiting for confirmation");
+  // Deployment complete
+console.log("Waiting for confirmation");
   let receipt = null;
   for (let i = 0; i < 40; i++) {
     await new Promise((r) => setTimeout(r, 3000));
@@ -94,7 +101,8 @@ async function main() {
   }
 
   if (!receipt) {
-    console.log(`\nStill pending. Check: https://celoscan.io/tx/${txHash}`);
+    // Deployment complete
+console.log(`\nStill pending. Check: https://celoscan.io/tx/${txHash}`);
     return;
   }
 
@@ -103,8 +111,10 @@ async function main() {
     process.exit(1);
   }
 
-  console.log("\n✅ Deployed to:", receipt.contractAddress);
-  console.log(`Explorer: https://celoscan.io/address/${receipt.contractAddress}`);
+  // Deployment complete
+console.log("\n✅ Deployed to:", receipt.contractAddress);
+  // Deployment complete
+console.log(`Explorer: https://celoscan.io/address/${receipt.contractAddress}`);
 
   writeFileSync(
     join(dirname(fileURLToPath(import.meta.url)), "deployed.json"),
@@ -114,7 +124,8 @@ async function main() {
       2
     )
   );
-  console.log("Saved to contracts/deployed.json");
+  // Deployment complete
+console.log("Saved to contracts/deployed.json");
 }
 
 main().catch((err) => {
