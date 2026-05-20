@@ -9,3 +9,4 @@ export { TrustBanner } from "./TrustBanner";
 export { NewsletterSection } from "./NewsletterSection";
 export { FAQSection } from "./FAQSection";
 export { StatsSection } from "./StatsSection";
+export { PartnersSection } from "./PartnersSection";
