@@ -1,6 +1,7 @@
 "use client";
 import { useState, FormEvent } from "react";
 import { Search } from "lucide-react";
+import Link from "next/link";
 
 interface Props {
   onSearch: (id: number) => void;
@@ -32,8 +33,8 @@ export function BatchSearch({ onSearch, recentIds = [], activeId }: Props) {
         </button>
       </form>
       {recentIds.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          <span className="text-xs text-gray-400 self-center">Recent:</span>
+        <div className="flex flex-wrap gap-2 items-center">
+          <span className="text-xs text-gray-400">Recent:</span>
           {recentIds.map((id) => (
             <button key={id} onClick={() => { setValue(String(id)); onSearch(id); }}
               className={`text-xs px-3 py-1 rounded-full border transition-colors font-medium
@@ -41,6 +42,11 @@ export function BatchSearch({ onSearch, recentIds = [], activeId }: Props) {
               #{id}
             </button>
           ))}
+          {activeId && (
+            <Link href={`/tracker/${activeId}`} className="text-xs text-green-700 hover:underline ml-1">
+              Share link ↗
+            </Link>
+          )}
         </div>
       )}
     </div>
