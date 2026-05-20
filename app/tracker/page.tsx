@@ -1,10 +1,9 @@
 "use client";
-
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Leaf, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { BatchCard, BatchSearch, EmptyState, ErrorState } from "@/components/tracker";
+import { BatchCard, BatchSearch, EmptyState, ErrorState, RecentBatches } from "@/components/tracker";
 import { useBatch, useBatchCount } from "@/hooks";
 
 export default function TrackerPage() {
@@ -24,7 +23,7 @@ export default function TrackerPage() {
   return (
     <main className="min-h-screen bg-[#f6f3ee] font-sans">
       <header className="sticky top-0 z-50 bg-white shadow-sm">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-green-800 font-extrabold text-lg">
             <Leaf className="w-5 h-5" /> COWCARE
           </Link>
@@ -34,7 +33,7 @@ export default function TrackerPage() {
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto px-6 py-12">
+      <div className="max-w-5xl mx-auto px-6 py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
           <span className="inline-flex items-center gap-1.5 bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full mb-4">
             <Leaf className="w-3.5 h-3.5" /> Powered by Celo Blockchain
@@ -48,26 +47,32 @@ export default function TrackerPage() {
           )}
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-8">
-          <BatchSearch onSearch={handleSearch} recentIds={recentIds} activeId={batchId} />
-        </motion.div>
-
-        <AnimatePresence mode="wait">
-          {loading && (
-            <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="flex flex-col items-center gap-3 py-16 text-gray-400">
-              <Loader2 className="w-8 h-8 animate-spin text-green-700" />
-              <span className="text-sm">Fetching from Celo blockchain…</span>
+        <div className="grid md:grid-cols-[1fr_320px] gap-8 items-start">
+          <div>
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-6">
+              <BatchSearch onSearch={handleSearch} recentIds={recentIds} activeId={batchId} />
             </motion.div>
-          )}
-          {error && !loading && (
-            <motion.div key="error" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-              <ErrorState message={error} onRetry={() => batchId && fetchBatch(batchId)} />
-            </motion.div>
-          )}
-          {batch && !loading && <BatchCard key={`batch-${batch.id}`} batch={batch} />}
-          {!batch && !loading && !error && <EmptyState />}
-        </AnimatePresence>
+            <AnimatePresence mode="wait">
+              {loading && (
+                <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  className="flex flex-col items-center gap-3 py-16 text-gray-400">
+                  <Loader2 className="w-8 h-8 animate-spin text-green-700" />
+                  <span className="text-sm">Fetching from Celo blockchain…</span>
+                </motion.div>
+              )}
+              {error && !loading && (
+                <motion.div key="error" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                  <ErrorState message={error} onRetry={() => batchId && fetchBatch(batchId)} />
+                </motion.div>
+              )}
+              {batch && !loading && <BatchCard key={`batch-${batch.id}`} batch={batch} />}
+              {!batch && !loading && !error && <EmptyState />}
+            </AnimatePresence>
+          </div>
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
+            <RecentBatches onSelect={handleSearch} activeId={batchId} />
+          </motion.div>
+        </div>
 
         <div className="mt-10 text-center text-xs text-gray-400">
           Contract:{" "}
