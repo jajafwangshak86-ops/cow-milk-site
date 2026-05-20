@@ -72,7 +72,7 @@ function getNonce() {
 function sendAndWait(data, label, value = 0n) {
   let txHash;
 
-  // Retry up to 3 times on nonce errors
+  // Retry up to 3 times on nonce errors (handles mempool congestion)
   for (let attempt = 0; attempt < 3; attempt++) {
     const nonce = getNonce();
     const gasEstHex = rpc("eth_estimateGas", {
