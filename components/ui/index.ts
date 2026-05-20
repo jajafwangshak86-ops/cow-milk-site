@@ -3,6 +3,7 @@ export { Card } from "./Card";
 export { Button } from "./Button";
 export { Input } from "./Input";
 export { Alert } from "./Alert";
+export { Modal } from "./Modal";
 export { Spinner } from "./Spinner";
 export { Tooltip } from "./Tooltip";
 export { CopyButton } from "./CopyButton";
