@@ -9,3 +9,4 @@ export { EmptyState } from "./EmptyState";
 export { ErrorState } from "./ErrorState";
 export { RecentBatches } from "./RecentBatches";
 export { ContractInfo } from "./ContractInfo";
+export { BatchCardSkeleton } from "./BatchCardSkeleton";
