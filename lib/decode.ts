@@ -22,3 +22,7 @@ export function decodeString(raw: string, slotOffset: number): string {
     return "";
   }
 }
+
+export function encAddr(addr: string): string {
+  return pad32(addr.replace("0x", "").toLowerCase());
+}
