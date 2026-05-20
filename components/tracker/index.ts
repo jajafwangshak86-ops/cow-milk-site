@@ -5,3 +5,4 @@ export { CustodyRow } from "./CustodyRow";
 export { EmptyState } from "./EmptyState";
 export { ErrorState } from "./ErrorState";
 export { RecentBatches } from "./RecentBatches";
+export { ContractInfo } from "./ContractInfo";
