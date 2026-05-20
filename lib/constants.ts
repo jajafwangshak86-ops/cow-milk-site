@@ -24,3 +24,6 @@ export const NAV_LINKS = [
 export const CELO_EXPLORER = "https://celoscan.io";
 export const CELO_EXPLORER_TX = (hash: string) => `${CELO_EXPLORER}/tx/${hash}`;
 export const CELO_EXPLORER_ADDR = (addr: string) => `${CELO_EXPLORER}/address/${addr}`;
+
+export const APP_VERSION = "1.0.0";
+export const APP_NAME = "CowCare";
