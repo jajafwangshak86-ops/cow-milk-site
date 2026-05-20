@@ -1,9 +1,12 @@
 "use client";
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Leaf, ArrowLeft, Loader2 } from "lucide-react";
+import { Leaf, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { BatchCard, BatchSearch, EmptyState, ErrorState, RecentBatches, ContractInfo } from "@/components/tracker";
+import {
+  BatchCard, BatchCardSkeleton, BatchSearch, EmptyState,
+  ErrorState, RecentBatches, ContractInfo,
+} from "@/components/tracker";
 import { useBatch, useBatchCount } from "@/hooks";
 
 export default function TrackerPage() {
@@ -32,7 +35,6 @@ export default function TrackerPage() {
           </Link>
         </div>
       </header>
-
       <div className="max-w-5xl mx-auto px-6 py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
           <span className="inline-flex items-center gap-1.5 bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full mb-4">
@@ -46,20 +48,13 @@ export default function TrackerPage() {
             <p className="text-green-700 font-semibold text-sm mt-2">{totalBatches} batches tracked on-chain</p>
           )}
         </motion.div>
-
         <div className="grid md:grid-cols-[1fr_320px] gap-8 items-start">
           <div>
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-6">
               <BatchSearch onSearch={handleSearch} recentIds={recentIds} activeId={batchId} />
             </motion.div>
             <AnimatePresence mode="wait">
-              {loading && (
-                <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  className="flex flex-col items-center gap-3 py-16 text-gray-400">
-                  <Loader2 className="w-8 h-8 animate-spin text-green-700" />
-                  <span className="text-sm">Fetching from Celo blockchain…</span>
-                </motion.div>
-              )}
+              {loading && <BatchCardSkeleton />}
               {error && !loading && (
                 <motion.div key="error" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                   <ErrorState message={error} onRetry={() => batchId && fetchBatch(batchId)} />
@@ -73,7 +68,6 @@ export default function TrackerPage() {
             <RecentBatches onSelect={handleSearch} activeId={batchId} />
           </motion.div>
         </div>
-
         <ContractInfo />
       </div>
     </main>
