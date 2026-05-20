@@ -171,3 +171,11 @@ const total = Number(BigInt(rpc("eth_call", { to: CONTRACT, data: SIG.batchCount
 console.log(`Total batches on-chain: ${total}`);
 console.log(`Batch IDs this run: ${batchIds.join(", ")}`);
 console.log("✅ Done");
+
+// Append batch IDs to deployed.json for reference
+import { readFileSync, writeFileSync } from "fs";
+const deployed = JSON.parse(readFileSync(join(__dirname, "deployed.json"), "utf8"));
+deployed.lastBatchIds = batchIds;
+deployed.lastRun = new Date().toISOString();
+writeFileSync(join(__dirname, "deployed.json"), JSON.stringify(deployed, null, 2));
+console.log("Updated deployed.json with batch IDs.");
