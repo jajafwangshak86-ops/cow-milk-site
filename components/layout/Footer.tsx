@@ -1,10 +1,11 @@
+import Link from "next/link";
 import { Leaf } from "lucide-react";
 import { APP_VERSION } from "@/lib/constants";
 
 const COLS = [
-  { title: "Company",  links: ["About Us", "Blog", "Careers", "Press"] },
-  { title: "Products", links: ["Dairy Mix", "Hay Blend", "Mineral Booster", "Custom Orders"] },
-  { title: "Support",  links: ["Contact Us", "FAQ", "Shipping", "Returns"] },
+  { title: "Company",  links: [{ label: "About Us", href: "/about" }, { label: "Blog", href: "/blog" }, { label: "Contact", href: "/contact" }] },
+  { title: "Products", links: [{ label: "Dairy Mix", href: "#" }, { label: "Hay Blend", href: "#" }, { label: "Mineral Booster", href: "#" }] },
+  { title: "Support",  links: [{ label: "Contact Us", href: "/contact" }, { label: "FAQ", href: "#" }, { label: "Tracker", href: "/tracker" }] },
 ];
 
 export function Footer() {
@@ -22,8 +23,8 @@ export function Footer() {
           <div key={col.title}>
             <div className="text-white font-semibold mb-3 text-sm">{col.title}</div>
             <ul className="space-y-2">
-              {col.links.map((l) => (
-                <li key={l}><a href="#" className="text-sm hover:text-white transition-colors">{l}</a></li>
+              {col.links.map(({ label, href }) => (
+                <li key={label}><Link href={href} className="text-sm hover:text-white transition-colors">{label}</Link></li>
               ))}
             </ul>
           </div>
@@ -32,8 +33,8 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-6 md:px-16 mt-10 pt-6 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-gray-600">
         <span>© 2026 CowCare. All rights reserved.</span>
         <div className="flex gap-5">
-          <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-          <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+          <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+          <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
         </div>
       </div>
     </footer>
