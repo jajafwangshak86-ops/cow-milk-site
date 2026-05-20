@@ -10,3 +10,4 @@ export { CopyButton } from "./CopyButton";
 export { ProgressBar } from "./ProgressBar";
 export { StatCard } from "./StatCard";
 export { Divider } from "./Divider";
+export { Skeleton } from "./Skeleton";
