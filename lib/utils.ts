@@ -10,3 +10,15 @@ export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /** Format a large number with commas */
 export const formatNumber = (n: number) => n.toLocaleString();
+
+/** Debounce a function */
+export function debounce<T extends (...args: unknown[]) => void>(fn: T, ms: number): T {
+  let timer: ReturnType<typeof setTimeout>;
+  return ((...args: unknown[]) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  }) as T;
+}
+
+/** Check if running in browser */
+export const isBrowser = typeof window !== "undefined";
