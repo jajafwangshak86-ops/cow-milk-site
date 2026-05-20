@@ -1,13 +1,14 @@
 "use client";
 import { Leaf, FlaskConical, Truck, ShoppingBag, CheckCircle } from "lucide-react";
 import { Stage, STAGES } from "@/lib/constants";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 const STAGE_META = {
-  Farmed:      { icon: <Leaf className="w-4 h-4" />,        color: "text-green-700",  bg: "bg-green-100",  label: "Farmed" },
-  Processed:   { icon: <FlaskConical className="w-4 h-4" />, color: "text-blue-700",   bg: "bg-blue-100",   label: "Processed" },
-  Distributed: { icon: <Truck className="w-4 h-4" />,        color: "text-amber-700",  bg: "bg-amber-100",  label: "Distributed" },
-  OnSale:      { icon: <ShoppingBag className="w-4 h-4" />,  color: "text-purple-700", bg: "bg-purple-100", label: "On Sale" },
-  Sold:        { icon: <CheckCircle className="w-4 h-4" />,  color: "text-gray-700",   bg: "bg-gray-100",   label: "Sold" },
+  Farmed:      { icon: <Leaf className="w-4 h-4" />,        color: "text-green-700",  bg: "bg-green-100",  label: "Farmed",      tip: "Batch created by farmer" },
+  Processed:   { icon: <FlaskConical className="w-4 h-4" />, color: "text-blue-700",   bg: "bg-blue-100",   label: "Processed",   tip: "Processed at facility" },
+  Distributed: { icon: <Truck className="w-4 h-4" />,        color: "text-amber-700",  bg: "bg-amber-100",  label: "Distributed", tip: "Shipped to retailer" },
+  OnSale:      { icon: <ShoppingBag className="w-4 h-4" />,  color: "text-purple-700", bg: "bg-purple-100", label: "On Sale",      tip: "Available for purchase" },
+  Sold:        { icon: <CheckCircle className="w-4 h-4" />,  color: "text-gray-700",   bg: "bg-gray-100",   label: "Sold",        tip: "Purchased by consumer" },
 } as const;
 
 export function StageTimeline({ stage }: { stage: Stage }) {
@@ -20,13 +21,15 @@ export function StageTimeline({ stage }: { stage: Stage }) {
         const active = i === idx;
         return (
           <div key={s} className="flex items-center flex-1 last:flex-none">
-            <div className={`flex flex-col items-center gap-1 ${done ? meta.color : "text-gray-300"}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all
-                ${active ? `${meta.bg} border-current ring-4 ring-offset-1 ring-current/20` : done ? `${meta.bg} border-current` : "bg-gray-50 border-gray-200"}`}>
-                {meta.icon}
+            <Tooltip text={meta.tip}>
+              <div className={`flex flex-col items-center gap-1 ${done ? meta.color : "text-gray-300"}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all
+                  ${active ? `${meta.bg} border-current ring-4 ring-offset-1 ring-current/20` : done ? `${meta.bg} border-current` : "bg-gray-50 border-gray-200"}`}>
+                  {meta.icon}
+                </div>
+                <span className="text-[10px] font-semibold hidden sm:block">{meta.label}</span>
               </div>
-              <span className="text-[10px] font-semibold hidden sm:block">{meta.label}</span>
-            </div>
+            </Tooltip>
             {i < STAGES.length - 1 && (
               <div className={`flex-1 h-0.5 mx-1 ${i < idx ? "bg-green-400" : "bg-gray-200"}`} />
             )}
