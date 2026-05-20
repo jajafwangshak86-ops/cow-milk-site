@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { rpcCall } from "@/lib/rpc";
 import { encUint, decodeUint, decodeAddr, decodeString } from "@/lib/decode";
 import { CONTRACT_ADDRESS, STAGES } from "@/lib/constants";
+import type { Batch } from "@/types/batch";
 
 async function ethCall(data: string) {
   return rpcCall("eth_call", [{ to: CONTRACT_ADDRESS, data }, "latest"]);
 }
+
+export const revalidate = 30; // ISR: revalidate every 30s
 
 export async function GET(req: NextRequest) {
   try {
@@ -24,7 +27,7 @@ export async function GET(req: NextRequest) {
     const hex = await ethCall(data);
     const raw = hex.replace("0x", "");
 
-    const batch = {
+    const batch: Batch = {
       id:           Number(decodeUint(raw, 0)),
       productName:  decodeString(raw, 1),
       quantity:     Number(decodeUint(raw, 2)),
@@ -34,7 +37,7 @@ export async function GET(req: NextRequest) {
       distributor:  decodeAddr(raw, 6),
       retailer:     decodeAddr(raw, 7),
       buyer:        decodeAddr(raw, 8),
-      stage:        STAGES[Number(decodeUint(raw, 9))] ?? "Unknown",
+      stage:        STAGES[Number(decodeUint(raw, 9))] ?? "Unknown" as Batch["stage"],
       createdAt:    Number(decodeUint(raw, 10)),
       updatedAt:    Number(decodeUint(raw, 11)),
     };
