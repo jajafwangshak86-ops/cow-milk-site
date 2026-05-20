@@ -1,9 +1,17 @@
 export function formatCelo(wei: string): string {
-  return (Number(BigInt(wei)) / 1e18).toFixed(4) + " CELO";
+  try {
+    return (Number(BigInt(wei)) / 1e18).toFixed(4) + " CELO";
+  } catch {
+    return "0.0000 CELO";
+  }
 }
 
 export function formatDate(ts: number): string {
-  return new Date(ts * 1000).toLocaleString();
+  if (!ts) return "—";
+  return new Date(ts * 1000).toLocaleString(undefined, {
+    year: "numeric", month: "short", day: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
 }
 
 export function shortAddr(addr: string): string {
@@ -17,4 +25,8 @@ export function celoScanAddr(addr: string): string {
 
 export function celoScanTx(hash: string): string {
   return `https://celoscan.io/tx/${hash}`;
+}
+
+export function isZeroAddr(addr: string): boolean {
+  return !addr || addr.toLowerCase() === "0x" + "0".repeat(40);
 }
