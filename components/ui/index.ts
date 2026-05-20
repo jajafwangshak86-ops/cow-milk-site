@@ -6,3 +6,4 @@ export { Tooltip } from "./Tooltip";
 export { CopyButton } from "./CopyButton";
 export { ProgressBar } from "./ProgressBar";
 export { StatCard } from "./StatCard";
+export { Divider } from "./Divider";
