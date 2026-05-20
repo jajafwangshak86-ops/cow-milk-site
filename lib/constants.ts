@@ -41,3 +41,11 @@ export const STAGE_COLORS: Record<string, string> = {
   OnSale:      "#9333ea",
   Sold:        "#6b7280",
 };
+
+export const STAGE_DESCRIPTIONS: Record<string, string> = {
+  Farmed:      "Batch created by a certified farmer on the Celo blockchain.",
+  Processed:   "Milk processed and quality-checked at a certified facility.",
+  Distributed: "Batch shipped from processing facility to retail distribution.",
+  OnSale:      "Batch listed for sale at a retail outlet.",
+  Sold:        "Batch purchased by a consumer. Supply chain complete.",
+};
