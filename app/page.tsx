@@ -1,9 +1,9 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import {
-  HeroSection, TrustBanner, FeaturesSection, ProductsSection,
-  HowItWorksSection, BlockchainCTA, TestimonialsSection, CTASection,
-  NewsletterSection, FAQSection,
+  HeroSection, TrustBanner, FeaturesSection, StatsSection, ProductsSection,
+  HowItWorksSection, BlockchainCTA, TestimonialsSection, FAQSection,
+  CTASection, NewsletterSection,
 } from "@/components/home";
 
 export default function Home() {
@@ -12,6 +12,7 @@ export default function Home() {
       <Navbar />
       <HeroSection />
       <TrustBanner />
+      <StatsSection />
       <FeaturesSection />
       <ProductsSection />
       <HowItWorksSection />
