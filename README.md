@@ -37,3 +37,8 @@ The `MilkSupplyChain` contract on Celo tracks batches through 5 stages:
 node contracts/deploy.js    # Deploy contract
 node contracts/interact.js  # Run full supply chain walkthrough
 ```
+
+## Tracker URLs
+- `/tracker` — Interactive tracker with search
+- `/tracker/[id]` — Shareable SSR batch detail page (e.g. `/tracker/19`)
+- `/tracker/stats` — On-chain stage distribution stats
