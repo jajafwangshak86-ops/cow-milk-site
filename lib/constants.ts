@@ -12,3 +12,11 @@ export const PRODUCTS = [
   { name: "Low Fat Milk 500ml",    qty: 200, price: "500000000000000"  },
   { name: "Organic Whole Milk 1L", qty: 60,  price: "1500000000000000" },
 ] as const;
+
+export const NAV_LINKS = [
+  { label: "Home",    href: "/" },
+  { label: "About",   href: "/about" },
+  { label: "Blog",    href: "/blog" },
+  { label: "Contact", href: "/contact" },
+  { label: "Tracker", href: "/tracker" },
+] as const;
