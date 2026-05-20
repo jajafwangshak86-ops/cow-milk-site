@@ -2,6 +2,7 @@ export { BatchCard } from "./BatchCard";
 export { BatchSearch } from "./BatchSearch";
 export { BatchShareButton } from "./BatchShareButton";
 export { StageTimeline } from "./StageTimeline";
+export { StageBadge } from "./StageBadge";
 export { CustodyRow } from "./CustodyRow";
 export { EmptyState } from "./EmptyState";
 export { ErrorState } from "./ErrorState";
