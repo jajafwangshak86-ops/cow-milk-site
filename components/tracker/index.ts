@@ -1,5 +1,6 @@
 export { BatchCard } from "./BatchCard";
 export { BatchSearch } from "./BatchSearch";
+export { BatchShareButton } from "./BatchShareButton";
 export { StageTimeline } from "./StageTimeline";
 export { CustodyRow } from "./CustodyRow";
 export { EmptyState } from "./EmptyState";
