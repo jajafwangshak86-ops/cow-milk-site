@@ -42,3 +42,28 @@ node contracts/interact.js  # Run full supply chain walkthrough
 - `/tracker` — Interactive tracker with search
 - `/tracker/[id]` — Shareable SSR batch detail page (e.g. `/tracker/19`)
 - `/tracker/stats` — On-chain stage distribution stats
+
+## Architecture
+
+```
+app/
+  page.tsx              ← Landing page (composed from components/home/)
+  tracker/
+    page.tsx            ← Interactive tracker (client)
+    [id]/page.tsx       ← Shareable SSR batch detail
+    stats/page.tsx      ← On-chain statistics (SSR)
+  api/
+    chain/route.ts      ← Batch count + lookup
+    chain/[id]/route.ts ← Individual batch REST endpoint
+    chain/recent/       ← Latest N batches
+    chain/count/        ← Batch count
+    health/             ← Uptime check
+components/
+  home/                 ← Landing page sections
+  tracker/              ← Tracker UI components
+  layout/               ← Navbar, Footer
+  ui/                   ← Reusable primitives
+lib/                    ← Constants, RPC, decode, format, utils
+hooks/                  ← React hooks
+types/                  ← Shared TypeScript types
+```
