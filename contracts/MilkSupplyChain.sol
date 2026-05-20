@@ -156,6 +156,7 @@ contract MilkSupplyChain {
         emit StageUpdated(_id, Stage.Sold, msg.sender);
     }
 
+    /// @dev Read-only view functions
     // ─── Views ────────────────────────────────────────────────────────────────
 
     function getBatch(uint256 _id) external view batchExists(_id) returns (Batch memory) {
