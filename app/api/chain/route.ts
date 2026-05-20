@@ -1,3 +1,5 @@
+// GET /api/chain         → { count: N }
+// GET /api/chain?id=N   → Batch object
 import { NextRequest, NextResponse } from "next/server";
 import { rpcCall } from "@/lib/rpc";
 import { encUint, decodeUint, decodeAddr, decodeString } from "@/lib/decode";
