@@ -3,7 +3,7 @@ import { Footer } from "@/components/layout/Footer";
 import {
   HeroSection, TrustBanner, FeaturesSection, ProductsSection,
   HowItWorksSection, BlockchainCTA, TestimonialsSection, CTASection,
-  NewsletterSection,
+  NewsletterSection, FAQSection,
 } from "@/components/home";
 
 export default function Home() {
@@ -17,6 +17,7 @@ export default function Home() {
       <HowItWorksSection />
       <BlockchainCTA />
       <TestimonialsSection />
+      <FAQSection />
       <CTASection />
       <NewsletterSection />
       <Footer />
