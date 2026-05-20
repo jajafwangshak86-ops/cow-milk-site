@@ -4,3 +4,11 @@ export const CELO_CHAIN_ID = 42220;
 export const CELOSCAN_BASE = "https://celoscan.io";
 export const STAGES = ["Farmed", "Processed", "Distributed", "OnSale", "Sold"] as const;
 export type Stage = typeof STAGES[number];
+
+export const PRODUCTS = [
+  { name: "Whole Milk 1L",         qty: 100, price: "1000000000000000" },
+  { name: "Skimmed Milk 1L",       qty: 80,  price: "900000000000000"  },
+  { name: "Full Cream Milk 2L",    qty: 50,  price: "1800000000000000" },
+  { name: "Low Fat Milk 500ml",    qty: 200, price: "500000000000000"  },
+  { name: "Organic Whole Milk 1L", qty: 60,  price: "1500000000000000" },
+] as const;
