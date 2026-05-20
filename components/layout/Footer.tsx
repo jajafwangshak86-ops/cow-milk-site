@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Leaf } from "lucide-react";
-import { APP_VERSION } from "@/lib/constants";
+import { APP_VERSION, SOCIAL_LINKS } from "@/lib/constants";
 
 const COLS = [
   { title: "Company",  links: [{ label: "About Us", href: "/about" }, { label: "Blog", href: "/blog" }, { label: "Contact", href: "/contact" }] },
@@ -16,7 +16,13 @@ export function Footer() {
           <div className="flex items-center gap-2 text-white font-extrabold text-lg mb-3">
             <Leaf className="w-5 h-5 text-green-500" /> COWCARE
           </div>
-          <p className="text-sm leading-relaxed">Premium organic cattle feed for healthier herds and better yields.</p>
+          <p className="text-sm leading-relaxed mb-4">Premium organic cattle feed for healthier herds and better yields.</p>
+          <div className="flex gap-3">
+            {Object.entries(SOCIAL_LINKS).map(([name, url]) => (
+              <a key={name} href={url} target="_blank" rel="noopener noreferrer"
+                className="text-xs text-gray-500 hover:text-white capitalize transition-colors">{name}</a>
+            ))}
+          </div>
           <p className="text-xs text-gray-600 mt-3">v{APP_VERSION}</p>
         </div>
         {COLS.map((col) => (
