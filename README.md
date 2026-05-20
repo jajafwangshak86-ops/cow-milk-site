@@ -70,3 +70,6 @@ types/                  ← Shared TypeScript types
 
 ## Contributing
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+
+## License
+MIT
