@@ -1,4 +1,5 @@
 import { Leaf } from "lucide-react";
+import { APP_VERSION } from "@/lib/constants";
 
 const COLS = [
   { title: "Company",  links: ["About Us", "Blog", "Careers", "Press"] },
@@ -15,6 +16,7 @@ export function Footer() {
             <Leaf className="w-5 h-5 text-green-500" /> COWCARE
           </div>
           <p className="text-sm leading-relaxed">Premium organic cattle feed for healthier herds and better yields.</p>
+          <p className="text-xs text-gray-600 mt-3">v{APP_VERSION}</p>
         </div>
         {COLS.map((col) => (
           <div key={col.title}>
