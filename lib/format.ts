@@ -30,3 +30,12 @@ export function celoScanTx(hash: string): string {
 export function isZeroAddr(addr: string): boolean {
   return !addr || addr.toLowerCase() === "0x" + "0".repeat(40);
 }
+
+export function formatQuantity(qty: number): string {
+  return qty.toLocaleString() + " units";
+}
+
+export function formatTimestamp(ts: number): string {
+  const d = new Date(ts * 1000);
+  return d.toISOString().replace("T", " ").slice(0, 19) + " UTC";
+}
