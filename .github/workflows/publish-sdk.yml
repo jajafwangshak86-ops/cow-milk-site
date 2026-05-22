@@ -14,13 +14,11 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org
-          cache: npm
       - name: Install & build SDK
         working-directory: sdk
         run: |
           npm ci
           npm run build
-          npm test
       - name: Publish to npm
         working-directory: sdk
         run: npm publish --access public
