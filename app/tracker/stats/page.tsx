@@ -63,6 +63,19 @@ export default async function StatsPage() {
             ))}
           </div>
         </div>
+        <div className="mt-6 bg-green-50 border border-green-100 rounded-2xl p-6">
+          <h2 className="font-bold text-gray-900 mb-1">Build with this data</h2>
+          <p className="text-sm text-gray-500 mb-3">Query the CowCare contract directly from your app using the SDK.</p>
+          <pre className="bg-white border border-gray-100 rounded-xl p-4 text-xs text-gray-700 overflow-x-auto">{`npm install cowcare-sdk
+
+import { getBatchCount, getBatch } from "cowcare-sdk";
+const count = await getBatchCount();
+const batch = await getBatch(1);`}</pre>
+          <a href="https://www.npmjs.com/package/cowcare-sdk" target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 mt-3 text-sm text-green-700 font-semibold hover:underline">
+            View on npm →
+          </a>
+        </div>
       </div>
     </main>
   );
