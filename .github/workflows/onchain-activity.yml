@@ -1,0 +1,21 @@
+name: On-chain Activity
+
+on:
+  schedule:
+    - cron: "0 12 * * 1"  # Every Monday at 12:00 UTC
+  workflow_dispatch:
+
+jobs:
+  run-interact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Run supply chain walkthrough
+        run: node contracts/interact.js
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}

@@ -94,6 +94,36 @@ export async function getRecentBatches(n = 10, rpc?: string): Promise<Batch[]> {
   return Promise.all(ids.map(id => getBatch(id, rpc)));
 }
 
+/** Returns the current stage index (0–4) for a batch. */
+export async function getStage(id: number, rpc?: string): Promise<Stage> {
+  const data = "0x2e325020" + encUint(id);
+  const hex = await ethCall(data, rpc);
+  return STAGES[Number(BigInt(hex))] ?? "Farmed";
+}
+
+/**
+ * Fetches all batches and filters by stage.
+ * For large datasets, prefer fetching a range manually.
+ */
+export async function getBatchesByStage(stage: Stage, rpc?: string): Promise<Batch[]> {
+  const count = await getBatchCount(rpc);
+  const all = await Promise.all(
+    Array.from({ length: count }, (_, i) => getBatch(i + 1, rpc))
+  );
+  return all.filter(b => b.stage === stage);
+}
+
+/** Returns stage distribution counts across all batches. */
+export async function getStageStats(rpc?: string): Promise<Record<Stage, number>> {
+  const count = await getBatchCount(rpc);
+  const all = await Promise.all(
+    Array.from({ length: count }, (_, i) => getBatch(i + 1, rpc))
+  );
+  const stats = Object.fromEntries(STAGES.map(s => [s, 0])) as Record<Stage, number>;
+  for (const b of all) stats[b.stage]++;
+  return stats;
+}
+
 /** Formats a wei amount as a CELO string. */
 export function formatCelo(wei: string): string {
   try { return (Number(BigInt(wei)) / 1e18).toFixed(4) + " CELO"; }
@@ -109,4 +139,22 @@ export function shortAddr(addr: string): string {
 /** Returns a Celoscan URL for an address. */
 export function celoScanAddr(addr: string): string {
   return `https://celoscan.io/address/${addr}`;
+}
+
+/** Returns a Celoscan URL for a transaction hash. */
+export function celoScanTx(txHash: string): string {
+  return `https://celoscan.io/tx/${txHash}`;
+}
+
+/** Returns a Celoscan URL for a specific batch token. */
+export function celoScanBatch(id: number): string {
+  return `https://celoscan.io/address/${CONTRACT_ADDRESS}?a=${id}`;
+}
+
+/** Converts a Unix timestamp to a locale date string. */
+export function formatTimestamp(ts: number, locale = "en-US"): string {
+  if (!ts) return "—";
+  return new Date(ts * 1000).toLocaleDateString(locale, {
+    year: "numeric", month: "short", day: "numeric",
+  });
 }

@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.0.1 — May 2026
+
+### Added (SDK)
+- `getStage(id)` — fetch only the stage of a batch without the full struct
+- `getBatchesByStage(stage)` — filter all batches by stage
+- `getStageStats()` — count batches per stage across the contract
+- `celoScanTx(txHash)` — Celoscan URL for a transaction
+- `celoScanBatch(id)` — Celoscan URL for a specific batch
+- `formatTimestamp(ts)` — convert Unix timestamp to locale date string
+- Expanded SDK test suite covering all new functions
+
+### Added (CI)
+- Dependabot config for automated weekly dependency PRs
+- Stale bot workflow for issue/PR hygiene
+- Scheduled on-chain activity workflow (weekly `interact.js` run)
+
+---
+
 ## v1.0.0 — May 2026
 
 ### Added

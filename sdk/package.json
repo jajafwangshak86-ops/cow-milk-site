@@ -1,6 +1,6 @@
 {
   "name": "cowcare-sdk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "JavaScript/TypeScript SDK for the CowCare MilkSupplyChain contract on Celo",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

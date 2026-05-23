@@ -1,6 +1,10 @@
-import { getBatchCount, getBatch, getRecentBatches, formatCelo, shortAddr, STAGES } from "../src/index";
+import {
+  getBatchCount, getBatch, getRecentBatches, getStage,
+  getBatchesByStage, getStageStats,
+  formatCelo, shortAddr, celoScanAddr, celoScanTx, celoScanBatch,
+  formatTimestamp, STAGES,
+} from "../src/index";
 
-// Mock fetch globally
 const mockFetch = jest.fn();
 global.fetch = mockFetch as unknown as typeof fetch;
 
@@ -10,41 +14,90 @@ function rpcOk(result: string) {
   });
 }
 
+// Minimal ABI-encoded batch fixture (id=1, productName="Milk", qty=100, price=1e15, stage=0)
+const BATCH_RAW =
+  "0000000000000000000000000000000000000000000000000000000000000001" +
+  "0000000000000000000000000000000000000000000000000000000000000160" +
+  "0000000000000000000000000000000000000000000000000000000000000064" +
+  "00000000000000000000000000000000000000000000000000038d7ea4c68000" +
+  "000000000000000000000000" + "a".repeat(40) +
+  "0000000000000000000000000000000000000000000000000000000000000000" +
+  "0000000000000000000000000000000000000000000000000000000000000000" +
+  "0000000000000000000000000000000000000000000000000000000000000000" +
+  "0000000000000000000000000000000000000000000000000000000000000000" +
+  "0000000000000000000000000000000000000000000000000000000000000000" +
+  "0000000000000000000000000000000000000000000000000000000067890000" +
+  "0000000000000000000000000000000000000000000000000000000067890000" +
+  "0000000000000000000000000000000000000000000000000000000000000000" +
+  "0000000000000000000000000000000000000000000000000000000000000004" +
+  "4d696c6b00000000000000000000000000000000000000000000000000000000";
+
 describe("getBatchCount", () => {
   it("decodes count from hex", async () => {
-    rpcOk("0x" + "0".repeat(63) + "5"); // 5
+    rpcOk("0x" + "0".repeat(63) + "5");
     expect(await getBatchCount()).toBe(5);
   });
 });
 
 describe("getBatch", () => {
   it("decodes a batch struct", async () => {
-    // Minimal raw ABI-encoded response for id=1, productName="Milk", qty=100, price=1e15
-    // We test the shape, not exact bytes — use a real hex from the chain fixture
-    const raw =
-      "0000000000000000000000000000000000000000000000000000000000000001" + // id=1
-      "0000000000000000000000000000000000000000000000000000000000000160" + // productName offset=352 (0xb*32=352? let's use 0x160=352)
-      "0000000000000000000000000000000000000000000000000000000000000064" + // qty=100
-      "00000000000000000000000000000000000000000000000000038d7ea4c68000" + // price=1e15
-      "000000000000000000000000" + "a".repeat(40) +                        // farmer
-      "0000000000000000000000000000000000000000000000000000000000000000" + // processor (zero)
-      "0000000000000000000000000000000000000000000000000000000000000000" + // distributor
-      "0000000000000000000000000000000000000000000000000000000000000000" + // retailer
-      "0000000000000000000000000000000000000000000000000000000000000000" + // buyer
-      "0000000000000000000000000000000000000000000000000000000000000000" + // stage=0 (Farmed)
-      "0000000000000000000000000000000000000000000000000000000067890000" + // createdAt
-      "0000000000000000000000000000000000000000000000000000000067890000" + // updatedAt
-      // padding to reach offset 0x160 = slot 11 (11*64=704 chars from start)
-      "0000000000000000000000000000000000000000000000000000000000000000" + // slot 12 padding
-      "0000000000000000000000000000000000000000000000000000000000000004" + // string length=4
-      "4d696c6b00000000000000000000000000000000000000000000000000000000"; // "Milk"
-
-    rpcOk("0x" + raw);
+    rpcOk("0x" + BATCH_RAW);
     const batch = await getBatch(1);
     expect(batch.id).toBe(1);
     expect(batch.quantity).toBe(100);
     expect(batch.stage).toBe("Farmed");
     expect(batch.pricePerUnit).toBe("1000000000000000");
+  });
+});
+
+describe("getStage", () => {
+  it("returns the correct stage for index 2", async () => {
+    rpcOk("0x" + "0".repeat(63) + "2");
+    expect(await getStage(1)).toBe("Distributed");
+  });
+
+  it("defaults to Farmed for out-of-range index", async () => {
+    rpcOk("0x" + "0".repeat(63) + "9");
+    expect(await getStage(1)).toBe("Farmed");
+  });
+});
+
+describe("getBatchesByStage", () => {
+  it("filters batches by stage", async () => {
+    // count = 1
+    rpcOk("0x" + "0".repeat(63) + "1");
+    // batch 1 = Farmed
+    rpcOk("0x" + BATCH_RAW);
+    const result = await getBatchesByStage("Farmed");
+    expect(result).toHaveLength(1);
+    expect(result[0].stage).toBe("Farmed");
+  });
+
+  it("returns empty array when no batches match", async () => {
+    rpcOk("0x" + "0".repeat(63) + "1");
+    rpcOk("0x" + BATCH_RAW);
+    const result = await getBatchesByStage("Sold");
+    expect(result).toHaveLength(0);
+  });
+});
+
+describe("getStageStats", () => {
+  it("returns correct counts per stage", async () => {
+    rpcOk("0x" + "0".repeat(63) + "1");
+    rpcOk("0x" + BATCH_RAW); // stage = Farmed
+    const stats = await getStageStats();
+    expect(stats.Farmed).toBe(1);
+    expect(stats.Sold).toBe(0);
+  });
+});
+
+describe("getRecentBatches", () => {
+  it("returns at most n batches", async () => {
+    rpcOk("0x" + "0".repeat(63) + "2"); // count = 2
+    rpcOk("0x" + BATCH_RAW);
+    rpcOk("0x" + BATCH_RAW);
+    const batches = await getRecentBatches(2);
+    expect(batches).toHaveLength(2);
   });
 });
 
@@ -64,6 +117,36 @@ describe("shortAddr", () => {
   });
   it("returns dash for zero address", () => {
     expect(shortAddr("0x" + "0".repeat(40))).toBe("—");
+  });
+});
+
+describe("celoScanAddr", () => {
+  it("returns correct URL", () => {
+    expect(celoScanAddr("0xabc")).toBe("https://celoscan.io/address/0xabc");
+  });
+});
+
+describe("celoScanTx", () => {
+  it("returns correct tx URL", () => {
+    expect(celoScanTx("0xdeadbeef")).toBe("https://celoscan.io/tx/0xdeadbeef");
+  });
+});
+
+describe("celoScanBatch", () => {
+  it("returns correct batch URL", () => {
+    const url = celoScanBatch(5);
+    expect(url).toContain("celoscan.io/address/");
+    expect(url).toContain("?a=5");
+  });
+});
+
+describe("formatTimestamp", () => {
+  it("formats a unix timestamp", () => {
+    const result = formatTimestamp(1700000000);
+    expect(result).toMatch(/\d{4}/); // contains a year
+  });
+  it("returns dash for zero", () => {
+    expect(formatTimestamp(0)).toBe("—");
   });
 });
 
