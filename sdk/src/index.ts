@@ -1,4 +1,7 @@
-export const CONTRACT_ADDRESS = "0x337b04f40036bfb48f22ae58fcf92d2f1f5cc4a8";
+import { createPublicClient, http, parseAbi, formatEther } from "viem";
+import { celo } from "viem/chains";
+
+export const CONTRACT_ADDRESS = "0x337b04f40036bfb48f22ae58fcf92d2f1f5cc4a8" as const;
 export const CELO_RPC = "https://forno.celo.org";
 export const CELO_CHAIN_ID = 42220;
 export const STAGES = ["Farmed", "Processed", "Distributed", "OnSale", "Sold"] as const;
@@ -19,72 +22,45 @@ export interface Batch {
   updatedAt: number;
 }
 
-// ── ABI-encoding helpers ──────────────────────────────────────────────────────
-const pad32 = (hex: string) => hex.replace("0x", "").padStart(64, "0");
-const encUint = (n: number | bigint) => pad32(BigInt(n).toString(16));
+const ABI = parseAbi([
+  "function batchCount() view returns (uint256)",
+  "function getBatch(uint256 id) view returns (uint256,string,uint256,uint256,address,address,address,address,address,uint8,uint256,uint256)",
+  "function getStage(uint256 id) view returns (uint8)",
+]);
 
-function decodeUint(raw: string, slot: number): bigint {
-  const s = slot * 64;
-  return s + 64 > raw.length ? 0n : BigInt("0x" + raw.slice(s, s + 64));
+function makeClient(rpcUrl = CELO_RPC) {
+  return createPublicClient({ chain: celo, transport: http(rpcUrl) });
 }
 
-function decodeAddr(raw: string, slot: number): string {
-  const s = slot * 64;
-  return s + 64 > raw.length ? "0x" + "0".repeat(40) : "0x" + raw.slice(s + 24, s + 64);
+function decodeBatch(id: number, raw: readonly unknown[]): Batch {
+  return {
+    id:           Number(raw[0]),
+    productName:  raw[1] as string,
+    quantity:     Number(raw[2]),
+    pricePerUnit: (raw[3] as bigint).toString(),
+    farmer:       raw[4] as string,
+    processor:    raw[5] as string,
+    distributor:  raw[6] as string,
+    retailer:     raw[7] as string,
+    buyer:        raw[8] as string,
+    stage:        STAGES[Number(raw[9])] ?? "Farmed",
+    createdAt:    Number(raw[10]),
+    updatedAt:    Number(raw[11]),
+  };
 }
-
-function decodeString(raw: string, slotOffset: number): string {
-  try {
-    const dynOffset = Number(decodeUint(raw, slotOffset)) * 2;
-    const len = Number(BigInt("0x" + raw.slice(dynOffset, dynOffset + 64)));
-    return Buffer.from(raw.slice(dynOffset + 64, dynOffset + 64 + len * 2), "hex").toString("utf8");
-  } catch {
-    return "";
-  }
-}
-
-// ── RPC ───────────────────────────────────────────────────────────────────────
-async function ethCall(data: string, rpc = CELO_RPC): Promise<string> {
-  const res = await fetch(rpc, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      jsonrpc: "2.0", id: 1, method: "eth_call",
-      params: [{ to: CONTRACT_ADDRESS, data }, "latest"],
-    }),
-  });
-  const json = await res.json();
-  if (json.error) throw new Error(`RPC error: ${json.error.message}`);
-  return json.result as string;
-}
-
-// ── Public API ────────────────────────────────────────────────────────────────
 
 /** Returns the total number of batches recorded on-chain. */
 export async function getBatchCount(rpc?: string): Promise<number> {
-  const hex = await ethCall("0x06f13056", rpc);
-  return Number(BigInt(hex));
+  const client = makeClient(rpc);
+  const count = await client.readContract({ address: CONTRACT_ADDRESS, abi: ABI, functionName: "batchCount" });
+  return Number(count);
 }
 
 /** Fetches a single batch by ID. */
 export async function getBatch(id: number, rpc?: string): Promise<Batch> {
-  const data = "0x5ac86ab7" + encUint(id);
-  const hex = await ethCall(data, rpc);
-  const raw = hex.replace("0x", "");
-  return {
-    id:           Number(decodeUint(raw, 0)),
-    productName:  decodeString(raw, 1),
-    quantity:     Number(decodeUint(raw, 2)),
-    pricePerUnit: decodeUint(raw, 3).toString(),
-    farmer:       decodeAddr(raw, 4),
-    processor:    decodeAddr(raw, 5),
-    distributor:  decodeAddr(raw, 6),
-    retailer:     decodeAddr(raw, 7),
-    buyer:        decodeAddr(raw, 8),
-    stage:        STAGES[Number(decodeUint(raw, 9))] ?? "Farmed",
-    createdAt:    Number(decodeUint(raw, 10)),
-    updatedAt:    Number(decodeUint(raw, 11)),
-  };
+  const client = makeClient(rpc);
+  const raw = await client.readContract({ address: CONTRACT_ADDRESS, abi: ABI, functionName: "getBatch", args: [BigInt(id)] });
+  return decodeBatch(id, raw as readonly unknown[]);
 }
 
 /** Fetches the latest `n` batches (most recent first). */
@@ -94,31 +70,24 @@ export async function getRecentBatches(n = 10, rpc?: string): Promise<Batch[]> {
   return Promise.all(ids.map(id => getBatch(id, rpc)));
 }
 
-/** Returns the current stage index (0–4) for a batch. */
+/** Returns the current stage of a batch. */
 export async function getStage(id: number, rpc?: string): Promise<Stage> {
-  const data = "0x2e325020" + encUint(id);
-  const hex = await ethCall(data, rpc);
-  return STAGES[Number(BigInt(hex))] ?? "Farmed";
+  const client = makeClient(rpc);
+  const stage = await client.readContract({ address: CONTRACT_ADDRESS, abi: ABI, functionName: "getStage", args: [BigInt(id)] });
+  return STAGES[Number(stage)] ?? "Farmed";
 }
 
-/**
- * Fetches all batches and filters by stage.
- * For large datasets, prefer fetching a range manually.
- */
+/** Returns all batches at the given stage. */
 export async function getBatchesByStage(stage: Stage, rpc?: string): Promise<Batch[]> {
   const count = await getBatchCount(rpc);
-  const all = await Promise.all(
-    Array.from({ length: count }, (_, i) => getBatch(i + 1, rpc))
-  );
+  const all = await Promise.all(Array.from({ length: count }, (_, i) => getBatch(i + 1, rpc)));
   return all.filter(b => b.stage === stage);
 }
 
 /** Returns stage distribution counts across all batches. */
 export async function getStageStats(rpc?: string): Promise<Record<Stage, number>> {
   const count = await getBatchCount(rpc);
-  const all = await Promise.all(
-    Array.from({ length: count }, (_, i) => getBatch(i + 1, rpc))
-  );
+  const all = await Promise.all(Array.from({ length: count }, (_, i) => getBatch(i + 1, rpc)));
   const stats = Object.fromEntries(STAGES.map(s => [s, 0])) as Record<Stage, number>;
   for (const b of all) stats[b.stage]++;
   return stats;
@@ -126,7 +95,7 @@ export async function getStageStats(rpc?: string): Promise<Record<Stage, number>
 
 /** Formats a wei amount as a CELO string. */
 export function formatCelo(wei: string): string {
-  try { return (Number(BigInt(wei)) / 1e18).toFixed(4) + " CELO"; }
+  try { return parseFloat(formatEther(BigInt(wei))).toFixed(4) + " CELO"; }
   catch { return "0.0000 CELO"; }
 }
 
@@ -146,7 +115,7 @@ export function celoScanTx(txHash: string): string {
   return `https://celoscan.io/tx/${txHash}`;
 }
 
-/** Returns a Celoscan URL for a specific batch token. */
+/** Returns a Celoscan URL for a specific batch. */
 export function celoScanBatch(id: number): string {
   return `https://celoscan.io/address/${CONTRACT_ADDRESS}?a=${id}`;
 }

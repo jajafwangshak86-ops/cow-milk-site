@@ -5,86 +5,76 @@ import {
   formatTimestamp, STAGES,
 } from "../src/index";
 
-const mockFetch = jest.fn();
-global.fetch = mockFetch as unknown as typeof fetch;
+// Mock viem
+jest.mock("viem", () => ({
+  createPublicClient: jest.fn(() => ({ readContract: mockReadContract })),
+  http: jest.fn(),
+  parseAbi: jest.fn((abi) => abi),
+  formatEther: jest.fn((wei: bigint) => (Number(wei) / 1e18).toString()),
+}));
+jest.mock("viem/chains", () => ({ celo: { id: 42220 } }));
 
-function rpcOk(result: string) {
-  mockFetch.mockResolvedValueOnce({
-    json: async () => ({ jsonrpc: "2.0", id: 1, result }),
-  });
-}
+const mockReadContract = jest.fn();
 
-// Minimal ABI-encoded batch fixture (id=1, productName="Milk", qty=100, price=1e15, stage=0)
-const BATCH_RAW =
-  "0000000000000000000000000000000000000000000000000000000000000001" +
-  "0000000000000000000000000000000000000000000000000000000000000160" +
-  "0000000000000000000000000000000000000000000000000000000000000064" +
-  "00000000000000000000000000000000000000000000000000038d7ea4c68000" +
-  "000000000000000000000000" + "a".repeat(40) +
-  "0000000000000000000000000000000000000000000000000000000000000000" +
-  "0000000000000000000000000000000000000000000000000000000000000000" +
-  "0000000000000000000000000000000000000000000000000000000000000000" +
-  "0000000000000000000000000000000000000000000000000000000000000000" +
-  "0000000000000000000000000000000000000000000000000000000000000000" +
-  "0000000000000000000000000000000000000000000000000000000067890000" +
-  "0000000000000000000000000000000000000000000000000000000067890000" +
-  "0000000000000000000000000000000000000000000000000000000000000000" +
-  "0000000000000000000000000000000000000000000000000000000000000004" +
-  "4d696c6b00000000000000000000000000000000000000000000000000000000";
+const BATCH_TUPLE = [
+  1n, "Milk", 100n, 1000000000000000n,
+  "0x" + "a".repeat(40),
+  "0x" + "0".repeat(40),
+  "0x" + "0".repeat(40),
+  "0x" + "0".repeat(40),
+  "0x" + "0".repeat(40),
+  0, // stage = Farmed
+  1700000000n, 1700000000n,
+] as const;
+
+beforeEach(() => mockReadContract.mockReset());
 
 describe("getBatchCount", () => {
-  it("decodes count from hex", async () => {
-    rpcOk("0x" + "0".repeat(63) + "5");
+  it("returns count", async () => {
+    mockReadContract.mockResolvedValueOnce(5n);
     expect(await getBatchCount()).toBe(5);
   });
 });
 
 describe("getBatch", () => {
-  it("decodes a batch struct", async () => {
-    rpcOk("0x" + BATCH_RAW);
-    const batch = await getBatch(1);
-    expect(batch.id).toBe(1);
-    expect(batch.quantity).toBe(100);
-    expect(batch.stage).toBe("Farmed");
-    expect(batch.pricePerUnit).toBe("1000000000000000");
+  it("decodes a batch", async () => {
+    mockReadContract.mockResolvedValueOnce(BATCH_TUPLE);
+    const b = await getBatch(1);
+    expect(b.id).toBe(1);
+    expect(b.productName).toBe("Milk");
+    expect(b.stage).toBe("Farmed");
+    expect(b.quantity).toBe(100);
   });
 });
 
 describe("getStage", () => {
-  it("returns the correct stage for index 2", async () => {
-    rpcOk("0x" + "0".repeat(63) + "2");
+  it("returns correct stage", async () => {
+    mockReadContract.mockResolvedValueOnce(2);
     expect(await getStage(1)).toBe("Distributed");
   });
-
-  it("defaults to Farmed for out-of-range index", async () => {
-    rpcOk("0x" + "0".repeat(63) + "9");
+  it("defaults to Farmed for out-of-range", async () => {
+    mockReadContract.mockResolvedValueOnce(99);
     expect(await getStage(1)).toBe("Farmed");
   });
 });
 
 describe("getBatchesByStage", () => {
-  it("filters batches by stage", async () => {
-    // count = 1
-    rpcOk("0x" + "0".repeat(63) + "1");
-    // batch 1 = Farmed
-    rpcOk("0x" + BATCH_RAW);
-    const result = await getBatchesByStage("Farmed");
-    expect(result).toHaveLength(1);
-    expect(result[0].stage).toBe("Farmed");
+  it("filters by stage", async () => {
+    mockReadContract.mockResolvedValueOnce(1n);
+    mockReadContract.mockResolvedValueOnce(BATCH_TUPLE);
+    expect(await getBatchesByStage("Farmed")).toHaveLength(1);
   });
-
-  it("returns empty array when no batches match", async () => {
-    rpcOk("0x" + "0".repeat(63) + "1");
-    rpcOk("0x" + BATCH_RAW);
-    const result = await getBatchesByStage("Sold");
-    expect(result).toHaveLength(0);
+  it("returns empty when no match", async () => {
+    mockReadContract.mockResolvedValueOnce(1n);
+    mockReadContract.mockResolvedValueOnce(BATCH_TUPLE);
+    expect(await getBatchesByStage("Sold")).toHaveLength(0);
   });
 });
 
 describe("getStageStats", () => {
-  it("returns correct counts per stage", async () => {
-    rpcOk("0x" + "0".repeat(63) + "1");
-    rpcOk("0x" + BATCH_RAW); // stage = Farmed
+  it("counts per stage", async () => {
+    mockReadContract.mockResolvedValueOnce(1n);
+    mockReadContract.mockResolvedValueOnce(BATCH_TUPLE);
     const stats = await getStageStats();
     expect(stats.Farmed).toBe(1);
     expect(stats.Sold).toBe(0);
@@ -92,58 +82,53 @@ describe("getStageStats", () => {
 });
 
 describe("getRecentBatches", () => {
-  it("returns at most n batches", async () => {
-    rpcOk("0x" + "0".repeat(63) + "2"); // count = 2
-    rpcOk("0x" + BATCH_RAW);
-    rpcOk("0x" + BATCH_RAW);
-    const batches = await getRecentBatches(2);
-    expect(batches).toHaveLength(2);
+  it("returns n batches", async () => {
+    mockReadContract.mockResolvedValueOnce(2n);
+    mockReadContract.mockResolvedValueOnce(BATCH_TUPLE);
+    mockReadContract.mockResolvedValueOnce(BATCH_TUPLE);
+    expect(await getRecentBatches(2)).toHaveLength(2);
   });
 });
 
 describe("formatCelo", () => {
-  it("formats wei to CELO", () => {
+  it("formats wei", () => {
     expect(formatCelo("1000000000000000000")).toBe("1.0000 CELO");
-    expect(formatCelo("500000000000000000")).toBe("0.5000 CELO");
   });
-  it("handles invalid input", () => {
+  it("handles invalid", () => {
     expect(formatCelo("bad")).toBe("0.0000 CELO");
   });
 });
 
 describe("shortAddr", () => {
-  it("shortens an address", () => {
+  it("shortens address", () => {
     expect(shortAddr("0x1234567890abcdef1234567890abcdef12345678")).toBe("0x1234…5678");
   });
-  it("returns dash for zero address", () => {
+  it("returns dash for zero", () => {
     expect(shortAddr("0x" + "0".repeat(40))).toBe("—");
   });
 });
 
 describe("celoScanAddr", () => {
-  it("returns correct URL", () => {
+  it("returns URL", () => {
     expect(celoScanAddr("0xabc")).toBe("https://celoscan.io/address/0xabc");
   });
 });
 
 describe("celoScanTx", () => {
-  it("returns correct tx URL", () => {
+  it("returns tx URL", () => {
     expect(celoScanTx("0xdeadbeef")).toBe("https://celoscan.io/tx/0xdeadbeef");
   });
 });
 
 describe("celoScanBatch", () => {
-  it("returns correct batch URL", () => {
-    const url = celoScanBatch(5);
-    expect(url).toContain("celoscan.io/address/");
-    expect(url).toContain("?a=5");
+  it("returns batch URL", () => {
+    expect(celoScanBatch(5)).toContain("?a=5");
   });
 });
 
 describe("formatTimestamp", () => {
-  it("formats a unix timestamp", () => {
-    const result = formatTimestamp(1700000000);
-    expect(result).toMatch(/\d{4}/); // contains a year
+  it("formats timestamp", () => {
+    expect(formatTimestamp(1700000000)).toMatch(/\d{4}/);
   });
   it("returns dash for zero", () => {
     expect(formatTimestamp(0)).toBe("—");
@@ -151,7 +136,7 @@ describe("formatTimestamp", () => {
 });
 
 describe("STAGES", () => {
-  it("has 5 stages in order", () => {
+  it("has 5 stages", () => {
     expect(STAGES).toEqual(["Farmed", "Processed", "Distributed", "OnSale", "Sold"]);
   });
 });

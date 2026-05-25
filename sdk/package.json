@@ -1,6 +1,6 @@
 {
   "name": "cowcare-sdk",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "JavaScript/TypeScript SDK for the CowCare MilkSupplyChain contract on Celo",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -12,12 +12,22 @@
       "require": "./dist/index.js"
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts --clean",
     "test": "node --experimental-vm-modules node_modules/.bin/jest"
   },
-  "keywords": ["celo", "blockchain", "milk", "supply-chain", "cowcare", "web3"],
+  "keywords": [
+    "celo",
+    "blockchain",
+    "milk",
+    "supply-chain",
+    "cowcare",
+    "web3"
+  ],
   "author": "CowCare",
   "license": "MIT",
   "repository": {
@@ -26,10 +36,13 @@
   },
   "homepage": "https://github.com/jajafwangshak86-ops/cow-milk-site#readme",
   "devDependencies": {
-    "tsup": "^8.0.0",
-    "typescript": "^5.0.0",
-    "jest": "^29.0.0",
     "@types/jest": "^29.0.0",
-    "ts-jest": "^29.0.0"
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "viem": "^2.50.4"
   }
 }
